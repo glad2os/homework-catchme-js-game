@@ -6,10 +6,22 @@
     <link rel="stylesheet" href="assets/main.css">
 </head>
 <body>
+<script>
+    function checkMouseEnter(button) {
+        nickname = document.querySelector('.startgame>input').value;
+        button.disabled = nickname === "";
+    }
+
+    function enableBtn(button) {
+        button.disabled = false
+    }
+</script>
 <div class="losing"></div>
 <div class="startgame">
     <input placeholder="nickname" type="text" name="">
-    <button id="startGameBtn" onclick="hideForm()">Начать игру</button>
+    <button id="startGameBtn" onmouseleave="enableBtn(this)" onmouseenter="checkMouseEnter(this)" onclick="hideForm()">
+        Начать игру
+    </button>
 </div>
 <div hidden class="game"></div>
 <p>Объектов поймано:</p>

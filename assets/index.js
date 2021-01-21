@@ -22,7 +22,7 @@ function startGame() {
         if (!stop) {
             // Завершение игры через 10 секунд
             let winGame = setTimeout(function () {
-                if (!stop){
+                if (!stop) {
                     clearInterval(winGame);
                     stop = true;
                     // Аннулирование результатов
@@ -227,10 +227,16 @@ function getRandomArbitrary(min, max) {
 
 function hideForm() {
     nickname = document.querySelector('.startgame>input').value;
-    startgameForm.hidden = true;
-    game.hidden = false;
-    roflanPomoika = document.createElement("img");
-    execute();
-    startGame();
-    stop = false;
+    if (nickname !== "") {
+        document.cookie = "nick=" + nickname;
+        startgameForm.hidden = true;
+        game.hidden = false;
+        roflanPomoika = document.createElement("img");
+        execute();
+        startGame();
+        stop = false;
+    }
 }
+
+
+document.querySelector('.startgame>input').value = document.cookie.substring(5)
