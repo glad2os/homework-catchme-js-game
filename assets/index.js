@@ -1,8 +1,15 @@
+let countOfElems = document.createElement('p');
+let counterLbl = document.createElement('div');
+let hrLine = document.createElement('hr');
+let ultimateLbl = document.createElement('p');
+let ultimateLblStatus = document.createElement('div');
+let pauseLblStatus = document.createElement('div');
+
 let stop = false;
 
 const game = document.querySelectorAll('.game')[0];
 const startgameForm = document.querySelectorAll('.startgame')[0];
-const counterLabel = document.querySelectorAll('.counter')[0];
+let counterLabel;
 
 let nickname;
 let roflanPomoika;
@@ -32,6 +39,12 @@ function startGame() {
                     losingForm.innerHTML = nickname + ", ваш результат: <br>"
                     losingForm.innerHTML = losingForm.innerHTML + "Всего было произведено: " + count + " элементов <br>";
                     losingForm.innerHTML = losingForm.innerHTML + "Поймано: " + catched;
+                    countOfElems.hidden = true;
+                    counterLbl.hidden = true;
+                    hrLine.hidden = true;
+                    ultimateLbl.hidden = true;
+                    ultimateLblStatus.hidden = true;
+                    pauseLblStatus.hidden = true;
                     alert("Игра выиграна");
                     return;
                 }
@@ -67,6 +80,12 @@ function startGame() {
                             losingForm.innerHTML = nickname + ", ваш результат: <br>"
                             losingForm.innerHTML = losingForm.innerHTML + "Всего было произведено: " + count + " элементов <br>";
                             losingForm.innerHTML = losingForm.innerHTML + "Поймано: " + catched;
+                            countOfElems.hidden = true;
+                            counterLbl.hidden = true;
+                            hrLine.hidden = true;
+                            ultimateLbl.hidden = true;
+                            ultimateLblStatus.hidden = true;
+                            pauseLblStatus.hidden = true;
                             return;
                         }
 
@@ -235,6 +254,30 @@ function hideForm() {
         execute();
         startGame();
         stop = false;
+
+
+        countOfElems.innerText = "Объектов поймано:"
+
+        counterLbl.innerText = "0";
+        counterLbl.className = "counter"
+        counterLabel = counterLbl;
+        hrLine.style = "width: 20px;";
+
+        ultimateLbl.innerText = "Ульта:";
+
+        ultimateLblStatus.innerText = "Готова";
+        ultimateLblStatus.className = "ult"
+
+        pauseLblStatus.innerText = "ПАУЗА";
+        pauseLblStatus.className = "pause"
+        pauseLblStatus.hidden = true;
+        pauseLblStatus.style = "text-align:center; position: absolute; left: 50%; top: 25%;";
+
+        document.body.insertAdjacentElement('beforeend', countOfElems);
+        document.body.insertAdjacentElement('beforeend', counterLbl);
+        document.body.insertAdjacentElement('beforeend', hrLine);
+        document.body.insertAdjacentElement('beforeend', ultimateLblStatus);
+        document.body.insertAdjacentElement('beforeend', pauseLblStatus);
     }
 }
 
