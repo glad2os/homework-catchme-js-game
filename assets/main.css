@@ -1,6 +1,7 @@
 .game {
     width: 800px;
     height: 600px;
-    background-color: gray;
+    background-color: #ffffff;
+    border: black solid 1px;
     margin: auto;
 }
