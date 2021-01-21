@@ -22,17 +22,19 @@ function startGame() {
         if (!stop) {
             // Завершение игры через 10 секунд
             let winGame = setTimeout(function () {
-                stop = true;
-                alert("Игра выиграна");
-                // Аннулирование результатов
-                startgameForm.hidden = true;
-                game.hidden = true;
-                const losingForm = document.querySelector('.losing');
-                losingForm.innerHTML = nickname + ", ваш результат: <br>"
-                losingForm.innerHTML = losingForm.innerHTML + "Всего было произведено: " + count + " элементов <br>";
-                losingForm.innerHTML = losingForm.innerHTML + "Поймано: " + catched;
-                clearInterval(winGame);
-                return;
+                if (!stop){
+                    clearInterval(winGame);
+                    stop = true;
+                    // Аннулирование результатов
+                    startgameForm.hidden = true;
+                    game.hidden = true;
+                    const losingForm = document.querySelector('.losing');
+                    losingForm.innerHTML = nickname + ", ваш результат: <br>"
+                    losingForm.innerHTML = losingForm.innerHTML + "Всего было произведено: " + count + " элементов <br>";
+                    losingForm.innerHTML = losingForm.innerHTML + "Поймано: " + catched;
+                    alert("Игра выиграна");
+                    return;
+                }
             }, 10000);
 
             let roflanObject = document.createElement("img");
