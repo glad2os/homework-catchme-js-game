@@ -46,6 +46,11 @@ setInterval(function () {
                     }
                 }
 
+                if (roflanObject.getBoundingClientRect()["y"] > roflanPomoika.getBoundingClientRect()['y']) {
+                    roflanObject.style.filter = " grayscale(100%)";
+                    roflanObject.src = 'assets/pominki.png';
+                }
+
                 if (topCount > game.getBoundingClientRect()['bottom'] - 50) {
                     game.removeChild(roflanObject);
                     visibleObjects[parseInt(roflanObject.getAttribute("id"))] = null;
