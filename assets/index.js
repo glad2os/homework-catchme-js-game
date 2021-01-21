@@ -10,17 +10,30 @@ let visibleObjects = [];
 
 const speed = 75;
 let count = 0;
-let debug = 0;
 let catched = 0;
-let ult_pressed = 0;
 let startDelay = 100;
 let generatingDelay = 1000;
 let ult_cool_down = false;
+let ult_pressed = 0;
+let skipped = 0;
 
 function startGame() {
     setInterval(function () {
-        debug++;
         if (!stop) {
+            // Завершение игры через 10 секунд
+            let winGame = setTimeout(function () {
+                stop = true;
+                alert("Игра выиграна");
+                // Аннулирование результатов
+                startgameForm.hidden = true;
+                game.hidden = true;
+                const losingForm = document.querySelector('.losing');
+                losingForm.innerHTML = nickname + ", ваш результат: <br>"
+                losingForm.innerHTML = losingForm.innerHTML + "Всего было произведено: " + count + " элементов <br>";
+                losingForm.innerHTML = losingForm.innerHTML + "Поймано: " + catched;
+                clearInterval(winGame);
+                return;
+            }, 10000);
 
             let roflanObject = document.createElement("img");
             roflanObject.setAttribute('src', 'assets/apple.png');
@@ -36,6 +49,25 @@ function startGame() {
             visibleObjects.push([roflanObject, setTimeout(function () {
                 const moving = setInterval(function () {
                     if (!stop) {
+                        //Проверка на пропуски
+                        if (skipped === 3) {
+                            stop = true;
+                            alert("Игра проиграна");
+                            visibleObjects.forEach(value => {
+                                if (value != null) {
+                                    game.removeChild(value[0]);
+                                }
+                            });
+                            // Аннулирование результатов
+                            startgameForm.hidden = true;
+                            game.hidden = true;
+                            const losingForm = document.querySelector('.losing');
+                            losingForm.innerHTML = nickname + ", ваш результат: <br>"
+                            losingForm.innerHTML = losingForm.innerHTML + "Всего было произведено: " + count + " элементов <br>";
+                            losingForm.innerHTML = losingForm.innerHTML + "Поймано: " + catched;
+                            return;
+                        }
+
                         let topCount = parseInt(roflanObject.style.top.substring(0, roflanObject.style.top.length - 2));
 
                         /* Проверка на координаты */
@@ -56,10 +88,8 @@ function startGame() {
                         }
 
                         // Удаление объекта об пол
-                        /*
-                            TODO: реализовать счетчик до 3х
-                         */
                         if (topCount > game.getBoundingClientRect()['bottom'] - 50) {
+                            skipped++;
                             game.removeChild(roflanObject);
                             visibleObjects[parseInt(roflanObject.getAttribute("id"))] = null;
                             clearInterval(moving);
@@ -74,17 +104,14 @@ function startGame() {
                     }
                 }, getRandomArbitrary(1, 35))
             }, startDelay)]);
-
+            count++;
         }
-        count++;
-
     }, generatingDelay);
 
 }
 
 function execute() {
     /*  Спавн корзины */
-    roflanPomoika = document.createElement("img");
     roflanPomoika.setAttribute('src', 'assets/pomoika.png');
     roflanPomoika.setAttribute('style', "position: absolute; top: 0px; left:" + game.getBoundingClientRect()['left'] + "px;right:0px;");
     roflanPomoika.setAttribute('height', '100px');
@@ -109,7 +136,7 @@ function execute() {
     function moveRight() {
         if (!stop || !ult_pressed) {
             let incRight = parseInt(roflanPomoika.style.left.substring(0, roflanPomoika.style.left.length - 2));
-            if (incRight + speed < game.getBoundingClientRect()['left'] + 725 )
+            if (incRight + speed < game.getBoundingClientRect()['left'] + 725)
                 roflanPomoika.style.left = incRight + speed + "px";
             else
                 roflanPomoika.style.left = game.getBoundingClientRect()['left'] + 725 + "px";
@@ -187,7 +214,6 @@ function execute() {
             case "Escape":
                 stop ^= true;
                 document.querySelectorAll(".pause")[0].hidden ^= true;
-                console.log(stop);
                 break;
         }
     });
@@ -201,6 +227,8 @@ function hideForm() {
     nickname = document.querySelector('.startgame>input').value;
     startgameForm.hidden = true;
     game.hidden = false;
+    roflanPomoika = document.createElement("img");
     execute();
     startGame();
+    stop = false;
 }
