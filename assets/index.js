@@ -102,7 +102,7 @@ function startGame() {
                         topCount++;
                         roflanObject.style.top = topCount.toString() + "px";
                     }
-                }, getRandomArbitrary(1, 35))
+                }, getRandomArbitrary(1, 25))
             }, startDelay)]);
             count++;
         }
