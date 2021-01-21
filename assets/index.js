@@ -10,14 +10,14 @@ const speed = 75;
 let count = 0;
 let debug = 0;
 let catched = 0;
-
+let ult_pressed = 0;
 let startDelay = 100;
 let generatingDelay = 1000;
+let ult_cool_down = false;
 
 setInterval(function () {
     debug++;
     if (!stop) {
-        // if (debug === 10) stop = true;
 
         let roflanObject = document.createElement("img");
         roflanObject.setAttribute('src', 'assets/apple.png');
@@ -32,33 +32,43 @@ setInterval(function () {
 
         visibleObjects.push([roflanObject, setTimeout(function () {
             const moving = setInterval(function () {
+                if (!stop) {
+                    let topCount = parseInt(roflanObject.style.top.substring(0, roflanObject.style.top.length - 2));
 
-                let topCount = parseInt(roflanObject.style.top.substring(0, roflanObject.style.top.length - 2));
-                if (roflanObject.getBoundingClientRect()["y"] + 25 === roflanPomoika.getBoundingClientRect()['y']) {
-                    console.log("EBALO: " + roflanObject.getBoundingClientRect()["x"] + " POMOIKA: " + roflanPomoika.getBoundingClientRect()['x']);
+                    /* Проверка на координаты */
+                    if (roflanObject.getBoundingClientRect()["y"] + 25 === roflanPomoika.getBoundingClientRect()['y']) {
+                        if (Math.abs(roflanPomoika.getBoundingClientRect()['x'] - roflanObject.getBoundingClientRect()["x"]) < 50) {
+                            catched++;
+                            game.removeChild(roflanObject);
+                            visibleObjects[parseInt(roflanObject.getAttribute("id"))] = null;
+                            clearInterval(moving);
+                            counterLabel.innerText = catched.toString();
+                        }
+                    }
 
-                    if (Math.abs(roflanPomoika.getBoundingClientRect()['x'] - roflanObject.getBoundingClientRect()["x"]) < 50) {
-                        catched++;
+                    // Затемнение
+                    if (roflanObject.getBoundingClientRect()["y"] > roflanPomoika.getBoundingClientRect()['y']) {
+                        roflanObject.style.filter = " grayscale(100%)";
+                        roflanObject.src = 'assets/pominki.png';
+                    }
+
+                    // Удаление объекта об пол
+                    /*
+                        TODO: реализовать счетчик до 3х
+                     */
+                    if (topCount > game.getBoundingClientRect()['bottom'] - 50) {
                         game.removeChild(roflanObject);
                         visibleObjects[parseInt(roflanObject.getAttribute("id"))] = null;
                         clearInterval(moving);
-                        counterLabel.innerText = catched.toString();
                     }
-                }
 
-                if (roflanObject.getBoundingClientRect()["y"] > roflanPomoika.getBoundingClientRect()['y']) {
-                    roflanObject.style.filter = " grayscale(100%)";
-                    roflanObject.src = 'assets/pominki.png';
+                    if (ult_pressed) {
+                        roflanObject.style.left = roflanPomoika.style.left;
+                    }
+                    //Движение
+                    topCount++;
+                    roflanObject.style.top = topCount.toString() + "px";
                 }
-
-                if (topCount > game.getBoundingClientRect()['bottom'] - 50) {
-                    game.removeChild(roflanObject);
-                    visibleObjects[parseInt(roflanObject.getAttribute("id"))] = null;
-                    clearInterval(moving);
-                }
-
-                topCount++;
-                roflanObject.style.top = topCount.toString() + "px";
             }, getRandomArbitrary(1, 35))
         }, startDelay)]);
 
@@ -73,6 +83,7 @@ function getRandomArbitrary(min, max) {
 }
 
 function execute() {
+    /*  Спавн корзины */
     roflanPomoika = document.createElement("img");
     roflanPomoika.setAttribute('src', 'assets/pomoika.png');
     roflanPomoika.setAttribute('style', "position: absolute; top: 0px; left:" + game.getBoundingClientRect()['left'] + "px;right:0px;");
@@ -83,26 +94,60 @@ function execute() {
 
     game.insertAdjacentElement('beforeend', roflanPomoika);
 
-    function moveLeft() {
-        let incLeft = parseInt(roflanPomoika.style.left.substring(0, roflanPomoika.style.left.length - 2));
+    // Движение
 
-        if (incLeft - speed > game.getBoundingClientRect()['left'])
-            roflanPomoika.style.left = incLeft - speed + "px";
-        else
-            roflanPomoika.style.left = game.getBoundingClientRect()['left'] + "px";
+    function moveLeft() {
+        if (!stop || ult_pressed === true) {
+            let incLeft = parseInt(roflanPomoika.style.left.substring(0, roflanPomoika.style.left.length - 2));
+
+            if (incLeft - speed > game.getBoundingClientRect()['left'])
+                roflanPomoika.style.left = incLeft - speed + "px";
+            else
+                roflanPomoika.style.left = game.getBoundingClientRect()['left'] + "px";
+        }
     }
 
     function moveRight() {
-        let incRight = parseInt(roflanPomoika.style.left.substring(0, roflanPomoika.style.left.length - 2));
-        if (incRight + speed < 1286)
-            roflanPomoika.style.left = incRight + speed + "px";
-        else
-            roflanPomoika.style.left = "1286px";
-
+        if (!stop || ult_pressed) {
+            let incRight = parseInt(roflanPomoika.style.left.substring(0, roflanPomoika.style.left.length - 2));
+            if (incRight + speed < 1286)
+                roflanPomoika.style.left = incRight + speed + "px";
+            else
+                roflanPomoika.style.left = "1286px";
+        }
     }
 
-    document.addEventListener("keydown", ev => {
+    function setUltTimeout() {
+        if (ult_pressed) {
+            setTimeout(function () {
+                ult_cool_down = true;
+                ult_pressed = false;
+                document.querySelector('.ult').innerHTML = "Восстановление";
+            }, 4000);
+        }
+    }
 
+    document.addEventListener('keydown', ev => {
+        if (ev.key === " " && !ult_pressed && !ult_cool_down) {
+            document.querySelector('.ult').innerHTML = "Нажата";
+            ult_pressed = true;
+            setUltTimeout();
+        }
+    });
+
+    document.addEventListener('keyup', ev => {
+        if (ev.key === " " && ult_cool_down) {
+            ult_pressed = false;
+            ult_cool_down = true;
+            document.querySelector('.ult').innerHTML = "Восстановление";
+            setTimeout(function () {
+                ult_cool_down = false;
+                document.querySelector('.ult').innerHTML = "Готова";
+            }, 5000);
+        }
+    });
+
+    document.addEventListener("keydown", ev => {
         switch (ev.key) {
             case "a":
                 moveLeft();
@@ -133,6 +178,11 @@ function execute() {
                 break;
             case "Ф":
                 moveLeft();
+                break;
+            case "Escape":
+                stop ^= true;
+                document.querySelectorAll(".pause")[0].hidden ^= true;
+                console.log(stop);
                 break;
         }
     });
