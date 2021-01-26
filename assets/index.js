@@ -4,6 +4,8 @@ let hrLine = document.createElement('hr');
 let ultimateLbl = document.createElement('p');
 let ultimateLblStatus = document.createElement('div');
 let pauseLblStatus = document.createElement('div');
+let timerLbl = document.createElement('div');
+let skippedLbl = document.createElement('div');
 
 let stop = false;
 
@@ -24,9 +26,13 @@ let ult_cool_down = false;
 let ult_pressed = 0;
 let skipped = 0;
 
+let sec_Tmp = 0;
+
 function startGame() {
     setInterval(function () {
         if (!stop) {
+            sec_Tmp++;
+            timer(sec_Tmp);
             // Завершение игры через 10 секунд
             let winGame = setTimeout(function () {
                 if (!stop) {
@@ -92,7 +98,8 @@ function startGame() {
                         let topCount = parseInt(roflanObject.style.top.substring(0, roflanObject.style.top.length - 2));
 
                         /* Проверка на координаты */
-                        if (roflanObject.getBoundingClientRect()["y"] + 25 === roflanPomoika.getBoundingClientRect()['y']) {
+                        if (Math.abs(roflanPomoika.getBoundingClientRect()['y'] - roflanObject.getBoundingClientRect()["y"]) < 25) {
+                            console.log("a");
                             if (Math.abs(roflanPomoika.getBoundingClientRect()['x'] - roflanObject.getBoundingClientRect()["x"]) < 50) {
                                 catched++;
                                 game.removeChild(roflanObject);
@@ -110,6 +117,7 @@ function startGame() {
 
                         // Удаление объекта об пол
                         if (topCount > game.getBoundingClientRect()['bottom'] - 50) {
+                            skippedLbl.innerHTML = "Кол-во пропущенных: " + (skipped + 1);
                             skipped++;
                             game.removeChild(roflanObject);
                             visibleObjects[parseInt(roflanObject.getAttribute("id"))] = null;
@@ -120,10 +128,10 @@ function startGame() {
                             roflanObject.style.left = roflanPomoika.style.left;
                         }
                         //Движение
-                        topCount++;
+                        topCount = topCount + getRandomArbitrary(1, 5);
                         roflanObject.style.top = topCount.toString() + "px";
                     }
-                }, getRandomArbitrary(1, 25))
+                }, getRandomArbitrary(1, 50))
             }, startDelay)]);
             count++;
         }
@@ -255,7 +263,7 @@ function hideForm() {
         startGame();
         stop = false;
 
-
+        timerLbl.innerHTML = "00:00";
         countOfElems.innerText = "Объектов поймано:"
 
         counterLbl.innerText = "0";
@@ -273,13 +281,33 @@ function hideForm() {
         pauseLblStatus.hidden = true;
         pauseLblStatus.style = "text-align:center; position: absolute; left: 50%; top: 25%;";
 
+        skippedLbl.innerHTML = "Кол-во пропущенных: " + skipped;
+
+        document.body.insertAdjacentHTML('beforeend', "Ваш никнейм: " + nickname + "<br>");
         document.body.insertAdjacentElement('beforeend', countOfElems);
         document.body.insertAdjacentElement('beforeend', counterLbl);
         document.body.insertAdjacentElement('beforeend', hrLine);
         document.body.insertAdjacentElement('beforeend', ultimateLblStatus);
         document.body.insertAdjacentElement('beforeend', pauseLblStatus);
+        document.body.insertAdjacentElement('beforeend', timerLbl);
+        document.body.insertAdjacentElement('beforeend', skippedLbl);
     }
 }
 
+function timer(sec) {
+    console.log(sec);
+    if (sec < 10) {
+        timerLbl.innerHTML = "00:0" + sec;
+    }
+    if ((sec > 10) && (sec < 60)) {
+        timerLbl.innerHTML = "0:" + sec;
+    }
+    if (sec > 60) {
+        if (Math.round(sec % 60) < 10) {
+            timerLbl.innerHTML = "0" + (Math.round(sec % 60)).toString() + ":" +
+                sec - Math.round(sec % 60);
+        }
+    }
+}
 
 document.querySelector('.startgame>input').value = document.cookie.substring(5)
